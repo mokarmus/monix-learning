@@ -30,7 +30,7 @@ class AccountServiceSpec extends AsyncWordSpec with Matchers {
 
       (for {
         result    <- service.debit(100).failed
-        assertion <- Task.eval(result shouldEqual InsufficientBalance(0, 100))
+        assertion <- Task.eval(result shouldEqual InsufficientBalanceNoStackTrace(0, 100))
       } yield assertion).runAsync
     }
   }

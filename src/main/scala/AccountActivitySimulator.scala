@@ -1,7 +1,8 @@
+import com.typesafe.scalalogging.LazyLogging
 import monix.eval.Task
 import monix.reactive.{ Consumer, Observable }
 
-class AccountActivitySimulator(service: AccountService) {
+class AccountActivitySimulator(service: AccountService) extends LazyLogging {
   def simulateCredits(numberOfCredits: Int, amount: Long): Task[Unit] =
     Observable
       .range(0, numberOfCredits)
@@ -15,9 +16,13 @@ class AccountActivitySimulator(service: AccountService) {
       .consumeWith(Consumer.foreachParallelAsync(5) { amount =>
         service
           .debit(amount)
-          .onErrorRestartIf {
-            case _: InsufficientBalance => true
-            case _                      => false
+//          .onErrorRestartIf {
+//            case _: InsufficientBalance => true
+//            case _                      => false
+//          }
+          .doOnFinish {
+            case Some(ex) => Task.eval(logger.error("Failed to debit", ex))
+            case None     => Task.eval(logger.info("Debit successful"))
           }
       })
 
@@ -35,4 +40,5 @@ class AccountActivitySimulator(service: AccountService) {
         )
       )
       .map(_ => ())
+      .onErrorHandle(_ => logger.info("Swallowing error"))
 }

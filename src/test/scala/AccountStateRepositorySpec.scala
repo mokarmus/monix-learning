@@ -1,4 +1,6 @@
-import org.scalatest.{ AsyncWordSpec, Matchers }
+
+import org.scalatest.wordspec.AsyncWordSpec
+import org.scalatest.matchers.should.Matchers
 
 import scala.concurrent.Future
 

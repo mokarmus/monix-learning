@@ -1,6 +1,7 @@
 import monix.eval.Task
-import org.scalatest.{ AsyncWordSpec, Matchers }
 import monix.execution.Scheduler.Implicits.global
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 
 class AccountActivitySimulatorSpec extends AsyncWordSpec with Matchers {
   "account activity simulator" should {
@@ -12,7 +13,7 @@ class AccountActivitySimulatorSpec extends AsyncWordSpec with Matchers {
         _         <- simulator.simulateCredits(10, 125)
         balance   <- service.balance
         assertion <- Task.eval(balance shouldEqual 1250)
-      } yield assertion).runAsync
+      } yield assertion).runToFuture
     }
 
     "debit amount multiple times" in {
@@ -24,7 +25,7 @@ class AccountActivitySimulatorSpec extends AsyncWordSpec with Matchers {
         _         <- simulator.simulateDebits(10, 125)
         balance   <- service.balance
         assertion <- Task.eval(balance shouldEqual 0)
-      } yield assertion).runAsync
+      } yield assertion).runToFuture
     }
 
     "credit and debit amounts multiple times" in {
@@ -43,7 +44,7 @@ class AccountActivitySimulatorSpec extends AsyncWordSpec with Matchers {
           balance shouldEqual 0
           version shouldEqual numberOfCredits + numberOfDebits
         }
-      } yield assertion).runAsync
+      } yield assertion).runToFuture
     }
   }
 }

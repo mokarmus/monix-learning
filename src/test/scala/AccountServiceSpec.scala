@@ -1,6 +1,7 @@
 import monix.eval.Task
-import org.scalatest.{ AsyncWordSpec, Matchers }
 import monix.execution.Scheduler.Implicits.global
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AsyncWordSpec
 
 class AccountServiceSpec extends AsyncWordSpec with Matchers {
   "account service" should {
@@ -11,7 +12,7 @@ class AccountServiceSpec extends AsyncWordSpec with Matchers {
         _         <- service.credit(100)
         balance   <- service.balance
         assertion <- Task.eval(balance shouldEqual 100)
-      } yield assertion).runAsync
+      } yield assertion).runToFuture
     }
 
     "allow to debit if current balance is greater than or equal to debit amount" in {
@@ -22,7 +23,7 @@ class AccountServiceSpec extends AsyncWordSpec with Matchers {
         _         <- service.debit(100)
         balance   <- service.balance
         assertion <- Task.eval(balance shouldEqual 0)
-      } yield assertion).runAsync
+      } yield assertion).runToFuture
     }
 
     "error debit if current balance is lower than debit amount" in {
@@ -31,7 +32,7 @@ class AccountServiceSpec extends AsyncWordSpec with Matchers {
       (for {
         result    <- service.debit(100).failed
         assertion <- Task.eval(result shouldEqual InsufficientBalance(0, 100))
-      } yield assertion).runAsync
+      } yield assertion).runToFuture
     }
   }
 }
